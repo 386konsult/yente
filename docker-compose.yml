@@ -1,4 +1,19 @@
 services:
+  traefik:
+    image: traefik:v3
+    container_name: adhere_opensanctions_traefik
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/traefik.yml:ro
+      - ./traefik/acme.json:/acme.json
+    command:
+      - "--configFile=/traefik.yml"
+
   index:
     # For new deployments, please use Elastic 9.x, see https://hub.docker.com/_/elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:8.19.13
@@ -22,7 +37,11 @@ services:
       - index-os-data:/usr/share/elasticsearch/data
     healthcheck:
       # curl --fail exits with an exit code >0 if anything about the request fails
-      test: ["CMD-SHELL", "curl --fail http://localhost:9200/_cluster/health || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "curl --fail http://localhost:9200/_cluster/health || exit 1",
+        ]
     deploy:
       placement:
         max_replicas_per_node: 1
@@ -31,27 +50,21 @@ services:
 
   app:
     image: ghcr.io/opensanctions/yente:5.3.0
+    container_name: columbus
     depends_on:
       index:
         condition: service_healthy
     ports:
       - "127.0.0.1:8000:8000"
-    environment:
-      YENTE_INDEX_TYPE: "elasticsearch"
-      YENTE_INDEX_URL: http://index:9200
-      # for non-commercial use:
-      # YENTE_MANIFEST: /app/manifests/civic.yml
-      # commercial use:
-      YENTE_MANIFEST: /app/manifests/commercial.yml
-      # Get your delivery token from the customer portal: https://www.opensanctions.org/account/bulk/
-      OPENSANCTIONS_DELIVERY_TOKEN: "your-secret-token"
+    env_file:
+      - .env
     # If you want to index data from the host machine as a custom dataset,
     # create a volume mount here to make that data accessible from the
     # container:
     # volumes:
     #   - "/path/on/the/host/computer:/data"
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000/healthz" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -59,12 +72,18 @@ services:
     deploy:
       mode: replicated
       # Run multiple instances for better scale:
-      replicas: 1
+      replicas: 2
       restart_policy:
         condition: on-failure
         delay: 10s
         max_attempts: 3
         window: 120s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`opensanctions.smartcomply.com`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.app.loadbalancer.server.port=8000"
 
 volumes:
   index-os-data: null
