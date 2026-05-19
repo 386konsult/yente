@@ -44,13 +44,12 @@ services:
         ]
     deploy:
       placement:
-        max_replicas_per_node: 1
+        max_replicas_per_node: 2
       restart_policy:
         condition: on-failure
 
   app:
     image: ghcr.io/opensanctions/yente:5.3.0
-    container_name: columbus
     depends_on:
       index:
         condition: service_healthy
@@ -85,5 +84,43 @@ services:
       - "traefik.http.routers.app.tls.certresolver=letsencrypt"
       - "traefik.http.services.app.loadbalancer.server.port=8000"
 
+  reindexer:
+    image: ghcr.io/opensanctions/yente:5.3.0
+    container_name: reindexer
+    depends_on:
+      index:
+        condition: service_healthy
+    env_file:
+      - .env
+    command: ["reindex"]
+    restart: "no"
+    profiles:
+      - reindex
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: none
+
+  cron-scheduler:
+    image: quay.io/panubo/cron:1.4
+    container_name: cron-scheduler
+    depends_on:
+      index:
+        condition: service_healthy
+    volumes:
+      - ./crontab.txt:/etc/crontabs/root:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+    environment:
+      - TZ=UTC
+      - CRON_GID=984
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+        window: 120s
+
 volumes:
-  index-os-data: null
+  index-os-data:
