@@ -53,8 +53,6 @@ services:
     depends_on:
       index:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:8000:8000"
     env_file:
       - .env
     # If you want to index data from the host machine as a custom dataset,
