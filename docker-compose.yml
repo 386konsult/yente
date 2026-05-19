@@ -55,6 +55,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - YENTE_AUTO_REINDEX=false
     # If you want to index data from the host machine as a custom dataset,
     # create a volume mount here to make that data accessible from the
     # container:
