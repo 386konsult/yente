@@ -110,9 +110,9 @@ services:
     volumes:
       - ./crontab.txt:/crontab:ro
       - /var/run/docker.sock:/var/run/docker.sock:rw
+    user: root
     environment:
       - TZ=UTC
-      - CRON_GID=984
     restart: unless-stopped
     deploy:
       replicas: 1

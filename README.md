@@ -71,7 +71,7 @@ This deployment runs yente on a single server using Docker Compose with a multi-
 
 **Zero-downtime reindexing:** Reindex is non-blocking because Elasticsearch uses index aliases. While `reindexer` builds a new index, the existing index continues serving API requests via the alias. The alias is atomically swapped once the new index is ready — no gap in service.
 
-**panubo/cron:** Chosen over alternatives because it's actively maintained since 2016, runs jobs as non-root with configurable GID, logs to stdout/stderr (integrated with `docker compose logs`), and supports dynamic crontab reloading without restart.
+**panubo/cron:** Chosen over alternatives because it's actively maintained since 2016, logs to stdout/stderr (integrated with `docker compose logs`), and supports dynamic crontab reloading without restart. The container runs as root to install the crontab; go-crond executes jobs as the unprivileged `cron` user.
 
 ### Configuration
 
