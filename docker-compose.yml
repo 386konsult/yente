@@ -108,7 +108,7 @@ services:
       index:
         condition: service_healthy
     volumes:
-      - ./crontab.txt:/etc/crontabs/root:ro
+      - ./crontab.txt:/crontab:ro
       - /var/run/docker.sock:/var/run/docker.sock:rw
     environment:
       - TZ=UTC
