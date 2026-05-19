@@ -1,2 +1,2 @@
-0 0,12 * * * cd /app && docker compose run --rm reindexer >> /proc/1/fd/1 2>&1
+0 0,12 * * * docker compose run --rm reindexer >> /proc/1/fd/1 2>&1
 
