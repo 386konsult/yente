@@ -102,7 +102,7 @@ services:
         condition: none
 
   cron-scheduler:
-    image: quay.io/panubo/cron:1.4
+    image: quay.io/panubo/cron:latest
     container_name: cron-scheduler
     depends_on:
       index:

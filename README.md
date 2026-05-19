@@ -42,7 +42,7 @@ This deployment runs yente on a single server using Docker Compose with a multi-
                                │
                     ┌──────────┴──────────┐
                     │  cron-scheduler     │
-                    │  panubo/cron:1.4    │
+                    │  panubo/cron:latest │
                     │  reads crontab.txt  │
                     └──────────┬──────────┘
                                │
@@ -61,7 +61,7 @@ This deployment runs yente on a single server using Docker Compose with a multi-
 | `index` | `elasticsearch:8.19.13` | 1 | Search index, 8GB JVM heap |
 | `app` | `yente:5.3.0` | **2** | API serving `/search`, `/match` |
 | `reindexer` | `yente:5.3.0` | 1 (profile) | Runs `yente reindex`, exits |
-| `cron-scheduler` | `panubo/cron:1.4` | 1 | Schedules reindexer via cron |
+| `cron-scheduler` | `panubo/cron:latest` | 1 | Schedules reindexer via cron |
 
 ### Why This Setup
 
