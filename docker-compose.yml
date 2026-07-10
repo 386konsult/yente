@@ -101,7 +101,9 @@ services:
         condition: none
 
   cron-scheduler:
-    image: quay.io/panubo/cron:latest
+    build:
+      context: .
+      dockerfile: cron.Dockerfile
     container_name: cron-scheduler
     depends_on:
       index:
