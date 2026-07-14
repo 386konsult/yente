@@ -1,2 +1,1 @@
-0 0,12 * * * root docker compose run --rm reindexer >> /proc/1/fd/1 2>&1
-
+0 0,12 * * * root docker --host unix:///var/run/docker.sock compose --project-name cron-scheduler run --rm reindexer >> /proc/1/fd/1 2>&1
