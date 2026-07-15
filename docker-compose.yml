@@ -123,5 +123,10 @@ services:
         max_attempts: 3
         window: 120s
 
+networks:
+  shared-net:
+    name: yente_shared
+    driver: bridge
+
 volumes:
   index-os-data:
